@@ -2,12 +2,13 @@
 import requests
 import json
 #api_url = "https://api.github.com/gists/public"
-headers = {'Accept: application/vnd.github.v3+json'}
+headers = {"Accept" : "application/json"}
 for api_url in ['https://api.github.com/gists/public']:
     try:
-        response = requests.get(api_url)
+        response = requests.get(api_url, headers=headers)
         response.text
-        print(response.json)
+        data = response.json()
+        print(data)
     except: 
         print("failed")
     else:
