@@ -5,18 +5,21 @@ import json
 import sqlite3
 from datetime import datetime
 
+github_user = input("Enter your github user id:")
+
+
 def db_function(gistuser):
         con = sqlite3.connect('invocations.db')
-#          con.row_factory = sqlite3.Row
         cur = con.cursor()
-        #query db for previious run of gist user
+        #query db for previous run of gist user
         cur.execute("SELECT * FROM invocations WHERE gist_user = ? ", (gistuser,))
         gistdata = cur.fetchone()
         print (gistdata)
         today = datetime.now()
         todayFrmt = today.strftime('%Y-%m-%dT%H:%M:%SZ')
         if gistdata is None :
-            print ("Database Empty for: ", gistuser, todayFrmt )
+            #Add a record if this is the first time this user has been queried 
+            print ("Database Empty for: ", gistuser)
             try:
                 gist_insert_query = """INSERT INTO invocations (gist_user, last_date) VALUES (?, ?);"""
                 val_data = (gistuser, todayFrmt)
@@ -36,7 +39,7 @@ def db_function(gistuser):
             return todayFrmt 
 
 
-db_function("cpcdoy")
+db_function(github_user)
 
 def get_gists(guser):
     api_url = f"https://api.github.com/users/{guser}/gists"
