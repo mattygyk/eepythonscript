@@ -1,23 +1,42 @@
 #!/usr/bin/env python3
+from xmlrpc.client import _iso8601_format
 import requests
 import json
 import sqlite3
+from datetime import datetime
 
 def db_function(gistuser):
-          con = sqlite3.connect('invocations.db')
-          con.row_factory = sqlite3.Row
-          cur = con.cursor()
-          #query db for previious run of gist user
-          cur.execute("SELECT * FROM invocations WHERE gist = 'mattygyk' ")
-          gistdata = cur.fetchone()
-          print (gistdata)
-          if gistdata is None :
-              print ("Database Empty for: ", gistuser )
-          else:
-              print ("Gistuser is:", gistuser )
-              print ("Date: ", gistdata[1])
+        con = sqlite3.connect('invocations.db')
+#          con.row_factory = sqlite3.Row
+        cur = con.cursor()
+        #query db for previious run of gist user
+        cur.execute("SELECT * FROM invocations WHERE gist_user = ? ", (gistuser,))
+        gistdata = cur.fetchone()
+        print (gistdata)
+        today = datetime.now()
+        todayFrmt = today.strftime('%Y-%m-%dT%H:%M:%SZ')
+        if gistdata is None :
+            print ("Database Empty for: ", gistuser, todayFrmt )
+            try:
+                gist_insert_query = """INSERT INTO invocations (gist_user, last_date) VALUES (?, ?);"""
+                val_data = (gistuser, todayFrmt)
+                cur.execute(gist_insert_query, val_data)
+                print("Record Inserted:", cur.rowcount )
+                con.commit()
+            except con.Error as error:
+                print("Failed to insert data into sqlite table", error)
+            finally:
+                if con:
+                    con.close()
+                    print("The SQLite connection is closed")
+                    return ("NoDate")
+        else:
+            print ("Gistuser is:", gistuser )
+            print ("Date: ", gistdata[1])
+            return todayFrmt 
 
-db_function("mattygyk")
+
+db_function("cpcdoy")
 
 def get_gists(guser):
     api_url = f"https://api.github.com/users/{guser}/gists"
@@ -35,4 +54,4 @@ def get_gists(guser):
     else:
         print(response.status_code)
 
-get_gists("mattygyk")
+get_gists("cpcdoy")
