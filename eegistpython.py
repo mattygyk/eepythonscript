@@ -53,7 +53,11 @@ def get_gists(guser):
             rspDict=dict(i)
             print ("Type= :", type(rspDict)) 
             print ("URL= : ", rspDict.get('url'), rspDict.get('created_at'))
-    except: 
+            files=(rspDict.get('files'))
+            filesdata=list(files.values())[0]
+            print ("FILESDATA ", filesdata)
+            print ("FILENAME; ", filesdata.get('filename'))
+    except:
         print("failed")
 
 get_gists(github_user)
