@@ -39,7 +39,7 @@ def db_function(gistuser):
             return todayFrmt 
 
 
-db_function(github_user)
+#db_function(github_user)
 
 def get_gists(guser):
     api_url = f"https://api.github.com/users/{guser}/gists"
@@ -47,14 +47,13 @@ def get_gists(guser):
     #for api_url in ['https://api.github.com/gists/public']:
     try:
         response = requests.get(api_url, headers=headers)
-        response.text
-        jsonResponse = response.json()
-#        print(jsonResponse)
-        responseDict = jsonResponse[0]
-        print (responseDict['created_at'])
+        rspJ = response.json()
+        length = len(rspJ)
+        for i in rspJ:
+            rspDict=dict(i)
+            print ("Type= :", type(rspDict)) 
+            print ("URL= : ", rspDict.get('url'), rspDict.get('created_at'))
     except: 
         print("failed")
-    else:
-        print(response.status_code)
 
-get_gists("cpcdoy")
+get_gists(github_user)
