@@ -79,6 +79,6 @@ def get_gists(guser):
             print(tabulate(resultsDataset, showindex=False, headers=resultsDataset.columns))
             print ("Number of records reported = ", count_records)
     except:
-        print("Github User "+guser+" does not have gist's")
+        print("Github User "+guser+" does not exist !")
 
 get_gists(github_user)
