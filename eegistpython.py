@@ -3,10 +3,15 @@ import requests
 import json
 import sqlite3
 import pandas as pd
+import argparse
 from datetime import datetime
 
 github_user = input("Enter your github user id: -> ")
+parser = argparse.ArgumentParser()
+parser.add_argument("-f", dest = "reportOveride", default = "no")
+args = parser.parse_args()
 
+epochFmt = datetime(1970, 1, 1).strftime('%Y-%m-%dT%H:%M:%SZ')
 
 def db_function(gistuser):
         con = sqlite3.connect('invocations.db')
@@ -15,7 +20,7 @@ def db_function(gistuser):
         cur.execute("SELECT * FROM invocations WHERE gist_user = ? ", (gistuser,))
         gistData = cur.fetchone()
 #        print (gistData)
-        epochFmt = datetime(1970, 1, 1).strftime('%Y-%m-%dT%H:%M:%SZ')
+#        epochFmt = datetime(1970, 1, 1).strftime('%Y-%m-%dT%H:%M:%SZ')
         nowFmt = datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
         if gistData is None :
             #Add a record if this is the first time this user has been queried 
@@ -48,7 +53,10 @@ def get_gists(guser):
     api_url = f"https://api.github.com/users/{guser}/gists"
     headers = {"Accept" : "application/json"}
     todayFrmt = datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
-    gistUserDate = db_function(guser)
+    if args.reportOveride == "no":
+       gistUserDate = db_function(guser)
+    else:
+       gistUserDate = epochFmt
     # print ("Date from the funcition = ", gistUserDate)
     # print ("The datatype of the gistuserdata = ", type(gistUserDate))
     # gistUserDateFmt = datetime.strptime(gistUserDate, '%Y-%m-%dT%H:%M:%SZ')
@@ -71,16 +79,17 @@ def get_gists(guser):
             if createdDateFmt > gistUserDateFmt :
                 # print ("Type= :", type(rspDict)) 
                 print ("URL= : ", rspDict.get('url'), rspDict.get('created_at'))
-                # files=(rspDict.get('files'))
-                # filesdata=list(files.values())[0]
-                # print ("FILESDATA ", filesdata)
-                # print ("FILENAME; ", filesdata.get('filename'))
+                files=(rspDict.get('files'))
+                filesdata=list(files.values())[0]
+                print ("FILESDATA ", filesdata)
+                print ("FILENAME; ", filesdata.get('filename'))
                 count_records += 1
         if count_records == 0:
             print ("Nothing new to report")
+            print ("If you want to overide the date and produce a full report re-run this script with -f yes flag")
         else:
             print ("Number of records reported = ", count_records)
     except:
-        print("failed")
+        print("failed for some reason")
 
 get_gists(github_user)
