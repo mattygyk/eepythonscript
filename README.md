@@ -7,12 +7,15 @@ Python 3.7 or later
 Ensure the following modules are installed in python environment.
 
 - requests
-- json
-- sqlite3
 - pandas
-- argparse
 - tabulate
-- datetime
+
+There is requirements.txt included
+
+e.g 
+pip install -r requirements.txt 
+
+NOTE: you may run this differently depending on your loacl pythin environment configuration.
 
 ## How to run the application
 
@@ -23,7 +26,7 @@ NOTE: the scripts have no reference to paths for any files used and will run in 
 
 ./createinvocationdb.py
 
-This will create create an empty database in the directory you running the scripts form with 2 tables, gist_user and last_date.
+This will create create an empty database in the directory you run it in with an empty table (invocations) and 2 columns, gist_user and last_date.
 
 ### Run eegistpython.py 
 
