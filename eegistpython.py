@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import re
 import requests
 import json
 import sqlite3
@@ -63,13 +64,17 @@ def get_gists(guser):
     gistUserDateFmt = pd.to_datetime(gistUserDate)
     # print ("gistUserDataFmt = ", gistUserDateFmt)
     # print ("The datatype of the gistuserdataFMT = ", type(gistUserDateFmt))
+    pdDataDS = pd.DataFrame(columns=['URL', 'CREATION_DATE', 'URL'])
     try:
         response = requests.get(api_url, headers=headers)
         rspJ = response.json()
         length = len(rspJ)
         count_records = 0
+#        resultsDataset = []
+        resultsDataset = pd.DataFrame(columns=['FILENAME', 'CREATION_DATE', 'URL'])
         for i in rspJ:
             rspDict=dict(i)
+            pdData = []
             createdDate = (rspDict.get('created_at'))
             # createdDateFmt = datetime.strptime(createdDate, '%Y-%m-%dT%H:%M:%SZ')
             createdDateFmt = pd.to_datetime(createdDate)
@@ -78,12 +83,21 @@ def get_gists(guser):
             # print ("Created Date Fmt: ",  createdDateFmt)
             if createdDateFmt > gistUserDateFmt :
                 # print ("Type= :", type(rspDict)) 
-                print ("URL= : ", rspDict.get('url'), rspDict.get('created_at'))
+#                print ("URL= : ", rspDict.get('url'), rspDict.get('created_at'))
+                gUrl=(rspDict.get('url'))
                 files=(rspDict.get('files'))
                 filesdata=list(files.values())[0]
-                print ("FILESDATA ", filesdata)
-                print ("FILENAME; ", filesdata.get('filename'))
+                fileName = (filesdata.get('filename'))
+                print ("File Name : ", fileName, "Creation Date : ", createdDate, "URL :", gUrl)
+                pdData = [fileName, createdDate, gUrl]
+                print ("lentgh: ", len(pdData))
+                resultsDataset.loc[len(resultsDataset)] = pdData
+
+#                print ("FILESDATA ", filesdata)
+#                print ("FILENAME; ", filesdata.get('filename'))
+                
                 count_records += 1
+        print (resultsDataset)
         if count_records == 0:
             print ("Nothing new to report")
             print ("If you want to overide the date and produce a full report re-run this script with -f yes flag")
