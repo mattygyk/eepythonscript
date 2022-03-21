@@ -1,6 +1,5 @@
 # List a GitHub Users Public Gist's.
 
-There are 2 files python files to run.
 ## Requirements
 
 Python 3.7 or later
@@ -16,6 +15,8 @@ Ensure the following modules are installed in python environment.
 - datetime
 
 ## How to run the application
+
+There are 2 files python files to run.
 
 NOTE: the scripts have no reference to paths for any files used and will run in the directory you have downloaded both py scripts into.
 ### Run createinvocationdb.py ONCE !
