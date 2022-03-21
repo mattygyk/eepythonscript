@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import re
+import sys
 import requests
 import json
 import sqlite3
@@ -12,7 +13,6 @@ github_user = input("Enter your github user id: -> ")
 parser = argparse.ArgumentParser()
 parser.add_argument("-f", dest = "reportOveride", default = "no")
 args = parser.parse_args()
-
 epochFmt = datetime(1970, 1, 1).strftime('%Y-%m-%dT%H:%M:%SZ')
 
 def db_function(gistuser):
@@ -72,7 +72,6 @@ def get_gists(guser):
                 pdData = [fileName, createDateRefromatted, gUrl]
                 resultsDataset.loc[len(resultsDataset)] = pdData
                 count_records += 1
-
         if count_records == 0:
             print ("Nothing new to report")
             print ("If you want to overide the date and produce a full report re-run this script with -f yes flag")
@@ -80,6 +79,6 @@ def get_gists(guser):
             print(tabulate(resultsDataset, showindex=False, headers=resultsDataset.columns))
             print ("Number of records reported = ", count_records)
     except:
-        print("failed for some reason")
+        print("Github User "+guser+" does not have gist's")
 
 get_gists(github_user)
