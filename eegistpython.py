@@ -72,11 +72,12 @@ def get_gists(guser):
                 pdData = [fileName, createDateRefromatted, gUrl]
                 resultsDataset.loc[len(resultsDataset)] = pdData
                 count_records += 1
-        print(tabulate(resultsDataset, showindex=False, headers=resultsDataset.columns))
+
         if count_records == 0:
             print ("Nothing new to report")
             print ("If you want to overide the date and produce a full report re-run this script with -f yes flag")
         else:
+            print(tabulate(resultsDataset, showindex=False, headers=resultsDataset.columns))
             print ("Number of records reported = ", count_records)
     except:
         print("failed for some reason")
