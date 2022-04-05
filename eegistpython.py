@@ -46,6 +46,7 @@ def db_function(gistuser):
 def get_gists(guser):
     api_url = f"https://api.github.com/users/{guser}/gists"
     headers = {"Accept" : "application/json"}
+
     todayFrmt = datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
     # Check for overide setting. If yes return formatted epcoh date. This will set the date to check from regardless of results from db_function function.
     if args.reportOveride == "no":
@@ -54,18 +55,22 @@ def get_gists(guser):
        gistUserDate = epochFmt
     gistUserDateFmt = pd.to_datetime(gistUserDate)
     try:
-        response = requests.get(api_url, headers=headers)
-        rspJ = response.json()
-        length = len(rspJ)
-        count_records = 0
-        #Build a dataframe of lists for each record returned from the api
-        resultsDataset = pd.DataFrame(columns=['FILENAME', 'CREATION_DATE', 'GIST API INFO URL'])
-        for i in rspJ:
-            rspDict=dict(i)
-            pdData = []
-            createdDate = (rspDict.get('created_at'))
-            createdDateFmt = pd.to_datetime(createdDate)
-            if createdDateFmt > gistUserDateFmt :
+        page_count = 1
+        per_page_setting = 5
+        while page_count != 0:
+            queryparameters = {"since" :  gistUserDate, "page" :  page_count, "per_page" : per_page_setting}
+            response = requests.get(api_url, headers=headers, params=queryparameters)
+            rspJ = response.json()
+            length = len(rspJ)
+            count_records = 0
+            #Build a dataframe of lists for each record returned from the api
+            resultsDataset = pd.DataFrame(columns=['FILENAME', 'CREATION_DATE', 'GIST API INFO URL'])
+            for i in rspJ:
+                rspDict=dict(i)
+                pdData = []
+                createdDate = (rspDict.get('created_at'))
+                createdDateFmt = pd.to_datetime(createdDate)
+    #            if createdDateFmt > gistUserDateFmt :
                 gUrl=(rspDict.get('url'))
                 files=(rspDict.get('files'))
                 filesdata=list(files.values())[0]
@@ -74,12 +79,19 @@ def get_gists(guser):
                 pdData = [fileName, createDateRefromatted, gUrl]
                 resultsDataset.loc[len(resultsDataset)] = pdData
                 count_records += 1
-        if count_records == 0:
-            print ("Nothing new to report")
-            print ("If you want to overide the date and produce a full report re-run this script with -f yes flag")
-        else:
-            print(tabulate(resultsDataset, showindex=False, headers=resultsDataset.columns))
-            print ("Number of records reported = ", count_records)
+            if count_records == 0:
+                print ("Nothing new to report")
+                print ("If you want to overide the date and produce a full report re-run this script with -f yes flag")
+                page_count = 0
+            else:
+                print(tabulate(resultsDataset, showindex=False, headers=resultsDataset.columns))
+                print ("Number of records reported = ", count_records)
+                if (count_records / per_page_setting ).is_integer():
+                    print ("Number of records on this iteration is 30 so new page")
+                    page_count += 1
+                else:
+                    page_count = 0
+
     except:
         print("Github User "+guser+" does not exist !")
 
